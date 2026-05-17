@@ -1,0 +1,52 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Ticket validation
+    function isValidTicket(data) {
+      return data.keys().hasAll(['room', 'description', 'severity', 'category', 'status', 'timestamp'])
+        && (data.keys().size() == 6 || (data.keys().size() == 7 && data.keys().hasAll(['imageUrl'])))
+        && data.room is string && data.room.size() <= 20
+        && data.description is string && data.description.size() <= 1000
+        && data.severity in ['Baja', 'Media', 'Alta', 'Crítica']
+        && data.category in ['Plomería', 'Electricidad', 'Limpieza', 'Suministros', 'HVAC', 'Mantenimiento General', 'Otro']
+        && data.status in ['Abierto', 'En Progreso', 'Resuelto']
+        && data.timestamp is string
+        && (!data.keys().hasAll(['imageUrl']) || (data.imageUrl is string && data.imageUrl.size() <= 1100000)); // Cap at ~1MB for base64
+    }
+
+    // Feedback validation
+    function isValidFeedback(data) {
+      return data.keys().hasAll(['rating', 'comment', 'timestamp'])
+        && (data.keys().size() == 3 || (data.keys().size() == 4 && data.keys().hasAll(['customerName'])))
+        && data.rating is int && data.rating >= 1 && data.rating <= 5
+        && data.comment is string && data.comment.size() <= 2000
+        && data.timestamp is string;
+    }
+
+    match /tickets/{ticketId} {
+      allow create: if isValidTicket(request.resource.data);
+      allow read: if true; // In a real app we might restrict this, but for this demo hotel staff/guests might need it
+      allow update, delete: if true; // Simplified for the demo dashboard
+    }
+
+    match /feedback/{feedbackId} {
+      allow create: if isValidFeedback(request.resource.data);
+      allow read: if true;
+      allow update, delete: if true;
+    }
+  }
+}

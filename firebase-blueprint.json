@@ -1,0 +1,41 @@
+{
+  "entities": {
+    "Ticket": {
+      "title": "Maintenance Ticket",
+      "description": "A maintenance request from a hotel guest",
+      "type": "object",
+      "properties": {
+        "room": { "type": "string", "description": "Room number" },
+        "description": { "type": "string", "description": "Description of the issue" },
+        "severity": { "type": "string", "enum": ["Baja", "Media", "Alta", "Crítica"] },
+        "category": { "type": "string", "enum": ["Plomería", "Electricidad", "Limpieza", "Suministros", "HVAC", "Mantenimiento General", "Otro"] },
+        "status": { "type": "string", "enum": ["Abierto", "En Progreso", "Resuelto"] },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "imageUrl": { "type": "string", "description": "Base64 or URL of the evidentiary image" }
+      },
+      "required": ["room", "description", "severity", "category", "status", "timestamp"]
+    },
+    "Feedback": {
+      "title": "Customer Feedback",
+      "description": "Feedback provided by a hotel guest",
+      "type": "object",
+      "properties": {
+        "rating": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "comment": { "type": "string" },
+        "customerName": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["rating", "comment", "timestamp"]
+    }
+  },
+  "firestore": {
+    "tickets": {
+      "schema": "Ticket",
+      "description": "Collection of maintenance tickets"
+    },
+    "feedback": {
+      "schema": "Feedback",
+      "description": "Collection of customer feedback"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Taj-AI",
+  "description": "Asistente inteligente del Hotel Tajamonae para gestión de mantenimiento y servicios.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
